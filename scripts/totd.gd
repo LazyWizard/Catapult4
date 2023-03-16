@@ -3,7 +3,7 @@ extends Node
 
 
 const _TOTD = [
-	# These used to be hardcoded, but now it is just a list of translation keys.
+	# These used to be hardcoded, but now it is just a list of position keys.
 	
 	"tip_os_hopping",
 	"tip_dual_install",

@@ -8,7 +8,7 @@ signal backup_restoration_finished
 signal backup_deletion_started
 signal backup_deletion_finished
 
-var available = null setget , _get_available
+var available = null : get = _get_available
 
 
 func backup_current(backup_name: String) -> void:
@@ -24,7 +24,7 @@ func backup_current(backup_name: String) -> void:
 		d.make_dir(dest_dir)
 		for world in FS.list_dir(Paths.savegames):
 			FS.copy_dir(Paths.savegames.plus_file(world), dest_dir)
-			yield(FS, "copy_dir_done")
+			await FS.copy_dir_done
 		
 		Status.post(tr("msg_backup_created"))
 	else:
@@ -85,12 +85,12 @@ func restore(backup_index: int) -> void:
 	if Directory.new().dir_exists(source_dir):
 		if Directory.new().dir_exists(dest_dir):
 			FS.rm_dir(dest_dir)
-			yield(FS, "rm_dir_done")
+			await FS.rm_dir_done
 		
 		Directory.new().make_dir(dest_dir)
 		for world in FS.list_dir(source_dir):
 			FS.copy_dir(source_dir.plus_file(world), dest_dir)
-			yield(FS, "copy_dir_done")
+			await FS.copy_dir_done
 		
 		Status.post(tr("msg_backup_restored"))
 	else:
@@ -109,7 +109,7 @@ func delete(backup_name: String) -> void:
 		Status.post(tr("msg_deleting_backup") % backup_name)
 	
 		FS.rm_dir(target_dir)
-		yield(FS, "rm_dir_done")
+		await FS.rm_dir_done
 		Status.post(tr("msg_backup_deleted"))
 
 	emit_signal("backup_deletion_finished")

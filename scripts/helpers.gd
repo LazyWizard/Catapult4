@@ -10,7 +10,7 @@ func create_info_file(location: String, name: String) -> void:
 	var path = location + "/" + INFO_FILENAME
 	var f = File.new()
 	if (f.open(path, File.WRITE) == 0):
-		f.store_string(JSON.print(info, "    "))
+		f.store_string(JSON.stringify(info, "    "))
 		f.close()
 	else:
 		Status.post(tr("msg_cannot_create_install_info") % path, Enums.MSG_ERROR)
@@ -36,7 +36,9 @@ func load_json_file(file: String):
 		Status.post(tr("msg_debug_file_path") % file, Enums.MSG_DEBUG)
 		return null
 	
-	var r := JSON.parse(f.get_as_text())
+	var test_json_conv = JSON.new()
+	test_json_conv.parse(f.get_as_text())
+	var r := test_json_conv.get_data()
 	f.close()
 	
 	if r.error:
@@ -57,7 +59,7 @@ func save_to_json_file(data, file: String) -> bool:
 		Status.post(tr("msg_debug_file_path") % file, Enums.MSG_DEBUG)
 		return false
 	
-	var text := JSON.print(data, "    ")
+	var text := JSON.stringify(data, "    ")
 	f.store_string(text)
 	f.close()
 	

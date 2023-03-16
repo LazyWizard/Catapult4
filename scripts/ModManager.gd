@@ -35,8 +35,8 @@ const _MODPACKS = {
 }
 
 
-var installed: Dictionary = {} setget , _get_installed
-var available: Dictionary = {} setget , _get_available
+var installed: Dictionary = {} : get = _get_installed
+var available: Dictionary = {} : get = _get_available
 
 
 func _get_installed() -> Dictionary:
@@ -69,7 +69,9 @@ func parse_mods_dir(mods_dir: String) -> Dictionary:
 		if f.file_exists(modinfo):
 			
 			f.open(modinfo, File.READ)
-			var json = JSON.parse(f.get_as_text())
+			var test_json_conv = JSON.new()
+			test_json_conv.parse(f.get_as_text())
+			var json = test_json_conv.get_data()
 			if json.error != OK:
 				Status.post(tr("msg_mod_json_parsing_failed") % modinfo, Enums.MSG_ERROR)
 				continue
@@ -173,14 +175,14 @@ func refresh_available():
 
 func _delete_mod(mod_id: String) -> void:
 	
-	yield(get_tree().create_timer(0.05), "timeout")
+	await get_tree().create_timer(0.05).timeout
 	# Have to introduce an artificial delay, otherwise the engine becomes very
 	# crash-happy when processing large numbers of mods.
 	
 	if mod_id in installed:
 		var mod = installed[mod_id]
 		FS.rm_dir(mod["location"])
-		yield(FS, "rm_dir_done")
+		await FS.rm_dir_done
 		Status.post(tr("msg_mod_deleted") % mod["modinfo"]["name"])
 	else:
 		Status.post(tr("msg_mod_not_found") % mod_id, Enums.MSG_ERROR)
@@ -203,7 +205,7 @@ func delete_mods(mod_ids: Array) -> void:
 			_delete_mod(id + "__")
 		else:
 			_delete_mod(id)
-		yield(self, "_done_deleting_mod")
+		await self._done_deleting_mod
 	
 	refresh_installed()
 	emit_signal("mod_deletion_finished")
@@ -211,7 +213,7 @@ func delete_mods(mod_ids: Array) -> void:
 
 func _install_mod(mod_id: String) -> void:
 	
-	yield(get_tree().create_timer(0.05), "timeout")
+	await get_tree().create_timer(0.05).timeout
 	# For stability; see above.
 
 	var mods_dir = Paths.mods_user
@@ -220,7 +222,7 @@ func _install_mod(mod_id: String) -> void:
 		var mod = available[mod_id]
 		
 		FS.copy_dir(mod["location"], mods_dir)
-		yield(FS, "copy_dir_done")
+		await FS.copy_dir_done
 		
 		if (mod_id in installed) and (installed[mod_id]["is_obsolete"] == true):
 			Status.post(tr("msg_obsolete_mod_collision") % [mod_id, mod["modinfo"]["name"]])
@@ -229,7 +231,7 @@ func _install_mod(mod_id: String) -> void:
 			modinfo["name"] += "*"
 			var f = File.new()
 			f.open(mods_dir.plus_file(mod["location"].get_file()).plus_file("modinfo.json"), File.WRITE)
-			f.store_string(JSON.print(modinfo, "    "))
+			f.store_string(JSON.stringify(modinfo, "    "))
 					
 		Status.post(tr("msg_mod_installed") % mod["modinfo"]["name"])
 	else:
@@ -250,7 +252,7 @@ func install_mods(mod_ids: Array) -> void:
 	
 	for id in mod_ids:
 		_install_mod(id)
-		yield(self, "_done_installing_mod")
+		await self._done_installing_mod
 	
 	refresh_installed()
 	emit_signal("mod_installation_finished")
@@ -265,32 +267,32 @@ func retrieve_kenan_pack() -> void:
 	Status.post(tr("msg_getting_kenan_pack") % game.to_upper())
 	
 	Downloader.download_file(pack["url"], Paths.own_dir, pack["filename"])
-	yield(Downloader, "download_finished")
+	await Downloader.download_finished
 	
 	var archive = Paths.own_dir.plus_file(pack["filename"])
 	if Directory.new().file_exists(archive):
 		FS.extract(archive, Paths.tmp_dir)
-		yield(FS, "extract_done")
+		await FS.extract_done
 		Directory.new().remove(archive)
 		
 		Status.post(tr("msg_wiping_mod_repo"))
 		if (Directory.new().dir_exists(Paths.mod_repo)):
 			FS.rm_dir(Paths.mod_repo)
-			yield(FS, "rm_dir_done")
+			await FS.rm_dir_done
 		
 		Status.post(tr("msg_unpacking_kenan_mods"))
 		for int_path in pack["internal_paths"]:
 			FS.move_dir(Paths.tmp_dir.plus_file(int_path), Paths.mod_repo)
-			yield(FS, "move_dir_done")
+			await FS.move_dir_done
 		
 		if Settings.read("install_archived_mods"):
 			Status.post(tr("msg_unpacking_archived_mods"))
 			FS.move_dir(Paths.tmp_dir.plus_file(pack["archived_path"]), Paths.mod_repo)
-			yield(FS, "move_dir_done")
+			await FS.move_dir_done
 		
 		Status.post(tr("msg_kenan_install_cleanup"))
 		FS.rm_dir(Paths.tmp_dir.plus_file(pack["internal_paths"][0].split("/")[0]))
-		yield(FS, "rm_dir_done")
+		await FS.rm_dir_done
 		
 		Status.post(tr("msg_kenan_install_done"))
 	

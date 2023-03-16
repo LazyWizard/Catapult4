@@ -9,7 +9,7 @@ signal extract_done
 
 var _platform: String = ""
 
-var last_extract_result: int = 0 setget , _get_last_extract_result
+var last_extract_result: int = 0 : get = _get_last_extract_result
 # Stores the exit code of the last extract operation (0 if successful).
 
 
@@ -29,7 +29,7 @@ func list_dir(path: String, recursive := false) -> Array:
 	var d = Directory.new()
 	d.open(path)
 	
-	var error = d.list_dir_begin(true)
+	var error = d.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 	if error:
 		Status.post(tr("msg_list_dir_failed") % [path, error], Enums.MSG_ERROR)
 		return []
@@ -79,7 +79,7 @@ func copy_dir(abs_path: String, dest_dir: String) -> void:
 	
 	var tfe = ThreadedFuncExecutor.new()
 	tfe.execute(self, "_copy_dir_internal", [abs_path, dest_dir])
-	yield(tfe, "func_returned")
+	await tfe.func_returned
 	tfe.collect()
 	emit_signal("copy_dir_done")
 
@@ -110,7 +110,7 @@ func rm_dir(abs_path: String) -> void:
 	
 	var tfe = ThreadedFuncExecutor.new()
 	tfe.execute(self, "_rm_dir_internal", [abs_path])
-	yield(tfe, "func_returned")
+	await tfe.func_returned
 	tfe.collect()
 	emit_signal("rm_dir_done")
 
@@ -148,7 +148,7 @@ func move_dir(abs_path: String, abs_dest: String) -> void:
 	
 	var tfe = ThreadedFuncExecutor.new()
 	tfe.execute(self, "_move_dir_internal", [abs_path, abs_dest])
-	yield(tfe, "func_returned")
+	await tfe.func_returned
 	tfe.collect()
 	emit_signal("move_dir_done")
 
@@ -194,7 +194,7 @@ func extract(path: String, dest_dir: String) -> void:
 		
 	var oew = OSExecWrapper.new()
 	oew.execute(command["name"], command["args"])
-	yield(oew, "process_exited")
+	await oew.process_exited
 	last_extract_result = oew.exit_code
 	if oew.exit_code:
 		Status.post(tr("msg_extract_error") % oew.exit_code, Enums.MSG_ERROR)

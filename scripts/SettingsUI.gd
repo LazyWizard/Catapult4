@@ -5,15 +5,15 @@ var _langs := ["en", "fr", "ru", "zh", "cs", "es", "pl", "tr"]
 
 var _themes := [
 	"Godot_3.res",
-	"Light.res",
+	"Light3D.res",
 	"Grey.res",
 	"Solarized_Dark.res",
 	"Solarized_Light.res",
 ]
 
-onready var _root = $"/root/Catapult"
-onready var _tabs = $"/root/Catapult/Main/Tabs"
-onready var _debug_ui = $"/root/Catapult/Main/Tabs/Debug"
+@onready var _root = $"/root/Catapult"
+@onready var _tabs = $"/root/Catapult/Main/TabBar"
+@onready var _debug_ui = $"/root/Catapult/Main/TabBar/Debug"
 
 
 func _ready() -> void:
@@ -33,19 +33,19 @@ func _ready() -> void:
 	if theme_idx >= 0:
 		$LauncherTheme/obtnTheme.selected = theme_idx
 	
-	$ShowGameDesc.pressed = Settings.read("show_game_desc")
-	$KeepLauncherOpen.pressed = Settings.read("keep_open_after_starting_game")
-	$PrintTips.pressed = Settings.read("print_tips_of_the_day")
-	$UpdateToSame.pressed = Settings.read("update_to_same_build_allowed")
-	$ShortenNames.pressed = Settings.read("shorten_release_names")
-	$AlwaysShowInstalls.pressed = Settings.read("always_show_installs")
-	$ShowObsoleteMods.pressed = Settings.read("show_obsolete_mods")
-	$InstallArchivedMods.pressed = Settings.read("install_archived_mods")
-	$ShowDebug.pressed = Settings.read("debug_mode")
+	$ShowGameDesc.button_pressed = Settings.read("show_game_desc")
+	$KeepLauncherOpen.button_pressed = Settings.read("keep_open_after_starting_game")
+	$PrintTips.button_pressed = Settings.read("print_tips_of_the_day")
+	$UpdateToSame.button_pressed = Settings.read("update_to_same_build_allowed")
+	$ShortenNames.button_pressed = Settings.read("shorten_release_names")
+	$AlwaysShowInstalls.button_pressed = Settings.read("always_show_installs")
+	$ShowObsoleteMods.button_pressed = Settings.read("show_obsolete_mods")
+	$InstallArchivedMods.button_pressed = Settings.read("install_archived_mods")
+	$ShowDebug.button_pressed = Settings.read("debug_mode")
 	$NumReleases/sbNumReleases.value = Settings.read("num_releases_to_request") as int
 	$NumPrs/sbNumPRs.value = Settings.read("num_prs_to_request") as int
 	
-	$ScaleOverride/cbScaleOverrideEnable.pressed = Settings.read("ui_scale_override_enabled")
+	$ScaleOverride/cbScaleOverrideEnable.button_pressed = Settings.read("ui_scale_override_enabled")
 	$ScaleOverride/sbScaleOverride.editable = Settings.read("ui_scale_override_enabled")
 	$ScaleOverride/sbScaleOverride.value = (Settings.read("ui_scale_override") as float) * 100.0
 

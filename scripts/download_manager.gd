@@ -13,7 +13,7 @@ var _current_filename := ""
 var _current_file_path := ""
 var _download_ongoing := false
 
-onready var _http: HTTPRequest
+@onready var _http: HTTPRequest
 
 
 func _enter_tree() -> void:
@@ -21,7 +21,7 @@ func _enter_tree() -> void:
 	_http = HTTPRequest.new()
 	_http.use_threads = true
 	self.add_child(_http)
-	_http.connect("request_completed", self, "_on_HTTPRequest_request_completed")
+	_http.connect("request_completed",Callable(self,"_on_HTTPRequest_request_completed"))
 
 
 func download_file(url: String, target_dir: String, target_filename: String) -> void:
@@ -42,7 +42,7 @@ func download_file(url: String, target_dir: String, target_filename: String) -> 
 		var total = _http.get_body_size()
 		
 		if downloaded < 1:
-			yield(get_tree(), "idle_frame")
+			await get_tree().idle_frame
 			continue
 		
 		var delta_time = OS.get_system_time_msecs() - last_progress_time
@@ -53,7 +53,7 @@ func download_file(url: String, target_dir: String, target_filename: String) -> 
 			last_progress_time = OS.get_system_time_msecs()
 			last_progress_bytes = downloaded
 		
-		yield(get_tree(), "idle_frame")
+		await get_tree().idle_frame
 
 
 func _get_progress_string(downloaded: int, total: int,
@@ -82,7 +82,7 @@ func _get_progress_string(downloaded: int, total: int,
 
 
 func _on_HTTPRequest_request_completed(_result: int, _response_code: int,
-		_headers: PoolStringArray, _body: PoolByteArray) -> void:
+		_headers: PackedStringArray, _body: PackedByteArray) -> void:
 	
 	_download_ongoing = false
 	Status.post(tr("msg_http_request_info") % [_result, _response_code, _headers], Enums.MSG_DEBUG)

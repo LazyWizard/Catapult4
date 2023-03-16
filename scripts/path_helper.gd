@@ -4,27 +4,27 @@ extends Node
 
 signal status_message
 
-var own_dir: String setget , _get_own_dir
-var installs_summary: Dictionary setget , _get_installs_summary
-var game_dir: String setget , _get_game_dir
-var next_install_dir: String setget , _get_next_install_dir
-var userdata: String setget , _get_userdata_dir
-var config: String setget , _get_config_dir
-var savegames: String setget , _get_savegame_dir
-var mods_stock: String setget , _get_mods_dir_default
-var mods_user: String setget , _get_mods_dir_user
-var sound_stock: String setget , _get_sound_dir_default
-var sound_user: String setget , _get_sound_dir_user
-var gfx_default: String setget , _get_gfx_dir_default
-var gfx_user: String setget , _get_gfx_dir_user
-var font_user: String setget , _get_font_dir_user
-var templates: String setget , _get_templates_dir
-var memorial: String setget , _get_memorial_dir
-var graveyard: String setget , _get_graveyard_dir
-var mod_repo: String setget , _get_modrepo_dir
-var tmp_dir: String setget , _get_tmp_dir
-var utils_dir: String setget , _get_utils_dir
-var save_backups: String setget , _get_save_backups_dir
+var own_dir: String : get = _get_own_dir
+var installs_summary: Dictionary : get = _get_installs_summary
+var game_dir: String : get = _get_game_dir
+var next_install_dir: String : get = _get_next_install_dir
+var userdata: String : get = _get_userdata_dir
+var config: String : get = _get_config_dir
+var savegames: String : get = _get_savegame_dir
+var mods_stock: String : get = _get_mods_dir_default
+var mods_user: String : get = _get_mods_dir_user
+var sound_stock: String : get = _get_sound_dir_default
+var sound_user: String : get = _get_sound_dir_user
+var gfx_default: String : get = _get_gfx_dir_default
+var gfx_user: String : get = _get_gfx_dir_user
+var font_user: String : get = _get_font_dir_user
+var templates: String : get = _get_templates_dir
+var memorial: String : get = _get_memorial_dir
+var graveyard: String : get = _get_graveyard_dir
+var mod_repo: String : get = _get_modrepo_dir
+var tmp_dir: String : get = _get_tmp_dir
+var utils_dir: String : get = _get_utils_dir
+var save_backups: String : get = _get_save_backups_dir
 
 var _last_active_install_name := ""
 var _last_active_install_dir := ""
@@ -48,7 +48,7 @@ func _get_installs_summary() -> Dictionary:
 			if d.file_exists(info_file):
 				var info = Helpers.load_json_file(info_file)
 				installs[info["name"]] = base_dir.plus_file(subdir)
-		if not installs.empty():
+		if not installs.is_empty():
 			result[game] = installs
 	
 	# Ensure that some installation of the game is set as active

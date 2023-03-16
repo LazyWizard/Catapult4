@@ -15,8 +15,8 @@ func _wrapper(path_and_args: Array) -> void:
 	emit_signal("process_exited")
 	_worker.call_deferred("wait_to_finish")
 
-func execute(path: String, args: PoolStringArray) -> void:
+func execute(path: String, args: PackedStringArray) -> void:
 	
 	_worker = Thread.new()
-	_worker.start(self, "_wrapper", [path, args])
+	_worker.start(Callable(self,"_wrapper").bind([path, args]))
 

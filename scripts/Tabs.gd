@@ -5,7 +5,7 @@ extends TabContainer
 
 var _manually_disabled = []
 
-export var disabled: bool = false setget _set_disabled
+@export var disabled: bool = false : set = _set_disabled
 
 
 func _set_disabled(value: bool) -> void:
@@ -15,7 +15,7 @@ func _set_disabled(value: bool) -> void:
 			# https://github.com/godotengine/godot/issues/52290
 			continue
 		if not i in _manually_disabled:
-			.set_tab_disabled(i, value)
+			super.set_tab_disabled(i, value)
 	
 	disabled = value
 
@@ -28,4 +28,4 @@ func set_tab_disabled(index: int, value: bool) -> void:
 		_manually_disabled.erase(index)
 	
 	if not disabled:
-		.set_tab_disabled(index, value)
+		super.set_tab_disabled(index, value)

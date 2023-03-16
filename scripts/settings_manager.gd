@@ -64,7 +64,9 @@ func _read_from_file(path: String) -> Dictionary:
 		
 	f.open(path, File.READ)
 	var s = f.get_as_text()
-	var result: JSONParseResult = JSON.parse(s)
+	var test_json_conv = JSON.new()
+	test_json_conv.parse(s)
+	var result: JSON = test_json_conv.get_data()
 	
 	if result.error:
 		Status.post(tr("msg_settings_parse_error") % [result.error_line, result.error_string], Enums.MSG_ERROR)
@@ -76,7 +78,7 @@ func _read_from_file(path: String) -> Dictionary:
 func _write_to_file(data: Dictionary, path: String) -> void:
 	
 	var f = File.new()
-	var content = JSON.print(data, "    ")
+	var content = JSON.stringify(data, "    ")
 	f.open(path, File.WRITE)
 	f.store_string(content)
 	f.close()
