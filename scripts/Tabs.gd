@@ -20,7 +20,8 @@ func _set_disabled(value: bool) -> void:
 	disabled = value
 
 
-func set_tab_disabled(index: int, value: bool) -> void:
+#FIXME
+func FIXME_set_tab_disabled(index: int, value: bool) -> void:
 	
 	if (value == true) and (not index in _manually_disabled):
 		_manually_disabled.append(index)

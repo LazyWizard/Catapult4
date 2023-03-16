@@ -33,7 +33,7 @@ func download_file(url: String, target_dir: String, target_filename: String) -> 
 	_http.download_file = target_dir + "/" + target_filename
 	_http.request(url)
 	_download_ongoing = true
-	var last_progress_time = OS.get_system_time_msecs()
+	var last_progress_time = Time.get_ticks_msec()
 	var last_progress_bytes = 0
 	
 	while _download_ongoing:
@@ -42,18 +42,18 @@ func download_file(url: String, target_dir: String, target_filename: String) -> 
 		var total = _http.get_body_size()
 		
 		if downloaded < 1:
-			await get_tree().idle_frame
+			await get_tree().process_frame
 			continue
 		
-		var delta_time = OS.get_system_time_msecs() - last_progress_time
+		var delta_time = Time.get_ticks_msec() - last_progress_time
 		var delta_bytes = downloaded - last_progress_bytes
 		
 		if (delta_time >= _PROGRESS_AFTER_MSECS) or (delta_bytes >= _PROGRESS_AFTER_BYTES):
 			Status.post(_get_progress_string(downloaded, total, delta_time, delta_bytes))
-			last_progress_time = OS.get_system_time_msecs()
+			last_progress_time = Time.get_ticks_msec()
 			last_progress_bytes = downloaded
 		
-		await get_tree().idle_frame
+		await get_tree().process_frame
 
 
 func _get_progress_string(downloaded: int, total: int,

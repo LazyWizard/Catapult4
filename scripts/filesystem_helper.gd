@@ -26,8 +26,10 @@ func _get_last_extract_result() -> int:
 func list_dir(path: String, recursive := false) -> Array:
 	# Lists the files and subdirectories within a directory.
 	
-	var d = Directory.new()
-	d.open(path)
+	var d = DirAccess.open(path)
+	if d == null:
+		Status.post(tr("msg_list_dir_failed") % [path, DirAccess.get_open_error()], Enums.MSG_ERROR)
+		return []
 	
 	var error = d.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 	if error:
@@ -56,21 +58,20 @@ func _copy_dir_internal(data: Array) -> void:
 	var dest_dir: String = data[1]
 	
 	var dir = abs_path.get_file()
-	var d = Directory.new()
 	
-	var error = d.make_dir_recursive(dest_dir.path_join(dir))
+	var error = DirAccess.make_dir_recursive_absolute(dest_dir.path_join(dir))
 	if error:
 		Status.post(tr("msg_cannot_create_target_dir") % [dest_dir.path_join(dir), error], Enums.MSG_ERROR)
 		return
 	
 	for item in list_dir(abs_path):
 		var path = abs_path.path_join(item)
-		if d.file_exists(path):
-			error = d.copy(path, dest_dir.path_join(dir).path_join(item))
+		if FileAccess.file_exists(path):
+			error = DirAccess.copy_absolute(path, dest_dir.path_join(dir).path_join(item))
 			if error:
 				Status.post(tr("msg_copy_file_failed") % [item, error], Enums.MSG_ERROR)
 				Status.post(tr("msg_copy_file_failed_details") % [path, dest_dir.path_join(dir).path_join(item)])
-		elif d.dir_exists(path):
+		elif DirAccess.dir_exists_absolute(path):
 			_copy_dir_internal([path, dest_dir.path_join(dir)])
 
 
@@ -87,20 +88,19 @@ func copy_dir(abs_path: String, dest_dir: String) -> void:
 func _rm_dir_internal(data: Array) -> void:
 	
 	var abs_path = data[0]
-	var d = Directory.new()
 	var error
 	
 	for item in list_dir(abs_path):
 		var path = abs_path.path_join(item)
-		if d.file_exists(path):
-			error = d.remove(path)
+		if FileAccess.file_exists(path):
+			error = DirAccess.remove_absolute(path)
 			if error:
 				Status.post(tr("msg_remove_file_failed") % [item, error], Enums.MSG_ERROR)
 				Status.post(tr("msg_remove_file_failed_details") % path, Enums.MSG_DEBUG)
-		elif d.dir_exists(path):
+		elif DirAccess.dir_exists_absolute(path):
 			_rm_dir_internal([path])
 	
-	error = d.remove(abs_path)
+	error = DirAccess.remove_absolute(abs_path)
 	if error:
 		Status.post(tr("msg_rm_dir_failed") % [abs_path, error], Enums.MSG_ERROR)
 
@@ -120,8 +120,7 @@ func _move_dir_internal(data: Array) -> void:
 	var abs_path: String = data[0]
 	var abs_dest: String = data[1]
 	
-	var d = Directory.new()
-	var error = d.make_dir_recursive(abs_dest)
+	var error = DirAccess.make_dir_recursive_absolute(abs_dest)
 	if error:
 		Status.post(tr("msg_create_dir_failed") % [abs_dest, error], Enums.MSG_ERROR)
 		return
@@ -129,15 +128,15 @@ func _move_dir_internal(data: Array) -> void:
 	for item in list_dir(abs_path):
 		var path = abs_path.path_join(item)
 		var dest = abs_dest.path_join(item)
-		if d.file_exists(path):
-			error = d.rename(path, abs_dest.path_join(item))
+		if FileAccess.file_exists(path):
+			error = DirAccess.rename_absolute(path, abs_dest.path_join(item))
 			if error:
 				Status.post(tr("msg_move_file_failed") % [item, error], Enums.MSG_ERROR)
 				Status.post(tr("msg_move_file_failed_details") % [path, dest])
-		elif d.dir_exists(path):
+		elif DirAccess.dir_exists_absolute(path):
 			_move_dir_internal([path, abs_dest.path_join(item)])
 	
-	error = d.remove(abs_path)
+	error = DirAccess.remove_absolute(abs_path)
 	if error:
 		Status.post(tr("msg_move_rmdir_failed") % [abs_path, error], Enums.MSG_ERROR)
 
@@ -186,9 +185,8 @@ func extract(path: String, dest_dir: String) -> void:
 		emit_signal("extract_done")
 		return
 		
-	var d = Directory.new()
-	if not d.dir_exists(dest_dir):
-		d.make_dir_recursive(dest_dir)
+	if not DirAccess.dir_exists_absolute(dest_dir):
+		DirAccess.make_dir_recursive_absolute(dest_dir)
 		
 	Status.post(tr("msg_extracting_file") % path.get_file())
 		

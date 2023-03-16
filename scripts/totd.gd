@@ -20,5 +20,4 @@ const _TOTD = [
 
 func get_tip() -> String:
 	
-	var index = OS.get_system_time_msecs() % len(_TOTD)
-	return tr(_TOTD[index])
+	return tr(_TOTD.pick_random())

@@ -38,14 +38,13 @@ func _get_own_dir() -> String:
 func _get_installs_summary() -> Dictionary:
 	
 	var result = {}
-	var d = Directory.new()
 	
 	for game in ["dda", "bn"]:
 		var installs = {}
 		var base_dir = Paths.own_dir.path_join(game)
 		for subdir in FS.list_dir(base_dir):
 			var info_file = base_dir.path_join(subdir).path_join(Helpers.INFO_FILENAME)
-			if d.file_exists(info_file):
+			if FileAccess.file_exists(info_file):
 				var info = Helpers.load_json_file(info_file)
 				installs[info["name"]] = base_dir.path_join(subdir)
 		if not installs.is_empty():
@@ -75,12 +74,11 @@ func _get_game_dir() -> String:
 
 func _find_active_game_dir() -> String:
 	
-	var d = Directory.new()
 	var base_dir = _get_own_dir().path_join(Settings.read("game"))
 	for subdir in FS.list_dir(base_dir):
 		var curr_dir = base_dir.path_join(subdir)
 		var info_file = curr_dir.path_join("catapult_install_info.json")
-		if d.file_exists(info_file):
+		if FileAccess.file_exists(info_file):
 			var info = Helpers.load_json_file(info_file)
 			if ("name" in info) and (info["name"] == Settings.read("active_install_" + Settings.read("game"))):
 				_last_active_install_dir = curr_dir
@@ -95,8 +93,7 @@ func _get_next_install_dir() -> String:
 	
 	var base_dir := _get_own_dir().path_join(Settings.read("game"))
 	var dir_number := 0
-	var d := Directory.new()
-	while d.dir_exists(base_dir.path_join("game" + str(dir_number))):
+	while DirAccess.dir_exists_absolute(base_dir.path_join("game" + str(dir_number))):
 		dir_number += 1
 	return base_dir.path_join("game" + str(dir_number))
 

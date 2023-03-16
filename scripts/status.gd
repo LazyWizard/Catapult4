@@ -29,7 +29,7 @@ func post(msg: String, type: int = Enums.MSG_INFO) -> void:
 	var msg_data := _form_message(msg, type)
 	
 	if _status_view:
-		_status_view.append_bbcode(msg_data["bb_text"])
+		_status_view.append_text(msg_data["bb_text"])
 	else:
 		print("saving message to buffer")
 		_buffer.push_back(msg_data)
@@ -43,7 +43,9 @@ func post(msg: String, type: int = Enums.MSG_INFO) -> void:
 func _datetime_with_msecs(utc = false) -> Dictionary:
 	
 	var datetime = Time.get_datetime_dict_from_system(utc)
-	datetime["millisecond"] = OS.get_system_time_msecs() % 1000
+	var millis = Time.get_unix_time_from_system() * 1000
+	millis = int(millis - int(millis)) # TODO: There has to be a better way...
+	datetime["millisecond"] = millis
 	return datetime
 
 

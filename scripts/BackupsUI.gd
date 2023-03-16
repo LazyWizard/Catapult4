@@ -100,7 +100,7 @@ func _on_EditName_text_changed(new_text: String):
 	
 	# Keep normal color if text is empty to avoid red placeholder text.
 	if (new_text == "") or (new_text.is_valid_filename()):
-		_edit_name.add_theme_color_override("font_color", get_color("font_color", "LineEdit"))
+		_edit_name.add_theme_color_override("font_color", get_theme_color("font_color", "LineEdit"))
 	else:
 		_edit_name.add_theme_color_override("font_color", Color.RED)
 
