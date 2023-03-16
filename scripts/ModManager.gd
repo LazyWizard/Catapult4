@@ -57,18 +57,17 @@ func _get_available() -> Dictionary:
 
 func parse_mods_dir(mods_dir: String) -> Dictionary:
 	
-	if not Directory.new().dir_exists(mods_dir):
+	if not DirAccess.dir_exists_absolute(mods_dir):
 		return {}
 		
 	var result = {}
 	
 	for subdir in FS.list_dir(mods_dir):
-		var f = File.new()
-		var modinfo = mods_dir.plus_file(subdir).plus_file("/modinfo.json")
+		var modinfo = mods_dir.path_join(subdir).path_join("/modinfo.json")
 		
-		if f.file_exists(modinfo):
+		if FileAccess.file_exists(modinfo):
 			
-			f.open(modinfo, File.READ)
+			var f := FileAccess.open(modinfo, FileAccess.READ)
 			var test_json_conv = JSON.new()
 			test_json_conv.parse(f.get_as_text())
 			var json = test_json_conv.get_data()
@@ -146,7 +145,7 @@ func refresh_installed():
 	installed = {}
 	
 	var non_stock := {}
-	if Directory.new().dir_exists(Paths.mods_user):
+	if DirAccess.dir_exists_absolute(Paths.mods_user):
 		non_stock = parse_mods_dir(Paths.mods_user)
 		for id in non_stock:
 			non_stock[id]["is_stock"] = false
@@ -229,8 +228,7 @@ func _install_mod(mod_id: String) -> void:
 			var modinfo = mod["modinfo"].duplicate()
 			modinfo["id"] += "__"
 			modinfo["name"] += "*"
-			var f = File.new()
-			f.open(mods_dir.plus_file(mod["location"].get_file()).plus_file("modinfo.json"), File.WRITE)
+			var f = FileAccess.open(mods_dir.path_join(mod["location"].get_file()).path_join("modinfo.json"), FileAccess.WRITE)
 			f.store_string(JSON.stringify(modinfo, "    "))
 					
 		Status.post(tr("msg_mod_installed") % mod["modinfo"]["name"])
@@ -269,29 +267,29 @@ func retrieve_kenan_pack() -> void:
 	Downloader.download_file(pack["url"], Paths.own_dir, pack["filename"])
 	await Downloader.download_finished
 	
-	var archive = Paths.own_dir.plus_file(pack["filename"])
-	if Directory.new().file_exists(archive):
+	var archive = Paths.own_dir.path_join(pack["filename"])
+	if FileAccess.file_exists(archive):
 		FS.extract(archive, Paths.tmp_dir)
 		await FS.extract_done
-		Directory.new().remove(archive)
+		DirAccess.remove_absolute(archive)
 		
 		Status.post(tr("msg_wiping_mod_repo"))
-		if (Directory.new().dir_exists(Paths.mod_repo)):
+		if (DirAccess.dir_exists_absolute(Paths.mod_repo)):
 			FS.rm_dir(Paths.mod_repo)
 			await FS.rm_dir_done
 		
 		Status.post(tr("msg_unpacking_kenan_mods"))
 		for int_path in pack["internal_paths"]:
-			FS.move_dir(Paths.tmp_dir.plus_file(int_path), Paths.mod_repo)
+			FS.move_dir(Paths.tmp_dir.path_join(int_path), Paths.mod_repo)
 			await FS.move_dir_done
 		
 		if Settings.read("install_archived_mods"):
 			Status.post(tr("msg_unpacking_archived_mods"))
-			FS.move_dir(Paths.tmp_dir.plus_file(pack["archived_path"]), Paths.mod_repo)
+			FS.move_dir(Paths.tmp_dir.path_join(pack["archived_path"]), Paths.mod_repo)
 			await FS.move_dir_done
 		
 		Status.post(tr("msg_kenan_install_cleanup"))
-		FS.rm_dir(Paths.tmp_dir.plus_file(pack["internal_paths"][0].split("/")[0]))
+		FS.rm_dir(Paths.tmp_dir.path_join(pack["internal_paths"][0].split("/")[0]))
 		await FS.rm_dir_done
 		
 		Status.post(tr("msg_kenan_install_done"))

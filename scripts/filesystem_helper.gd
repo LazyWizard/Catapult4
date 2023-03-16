@@ -41,9 +41,9 @@ func list_dir(path: String, recursive := false) -> Array:
 		if name:
 			result.append(name)
 			if recursive and d.current_is_dir():
-				var subdir = list_dir(path.plus_file(name), true)
+				var subdir = list_dir(path.path_join(name), true)
 				for child in subdir:
-					result.append(name.plus_file(child))
+					result.append(name.path_join(child))
 		else:
 			break
 	
@@ -58,20 +58,20 @@ func _copy_dir_internal(data: Array) -> void:
 	var dir = abs_path.get_file()
 	var d = Directory.new()
 	
-	var error = d.make_dir_recursive(dest_dir.plus_file(dir))
+	var error = d.make_dir_recursive(dest_dir.path_join(dir))
 	if error:
-		Status.post(tr("msg_cannot_create_target_dir") % [dest_dir.plus_file(dir), error], Enums.MSG_ERROR)
+		Status.post(tr("msg_cannot_create_target_dir") % [dest_dir.path_join(dir), error], Enums.MSG_ERROR)
 		return
 	
 	for item in list_dir(abs_path):
-		var path = abs_path.plus_file(item)
+		var path = abs_path.path_join(item)
 		if d.file_exists(path):
-			error = d.copy(path, dest_dir.plus_file(dir).plus_file(item))
+			error = d.copy(path, dest_dir.path_join(dir).path_join(item))
 			if error:
 				Status.post(tr("msg_copy_file_failed") % [item, error], Enums.MSG_ERROR)
-				Status.post(tr("msg_copy_file_failed_details") % [path, dest_dir.plus_file(dir).plus_file(item)])
+				Status.post(tr("msg_copy_file_failed_details") % [path, dest_dir.path_join(dir).path_join(item)])
 		elif d.dir_exists(path):
-			_copy_dir_internal([path, dest_dir.plus_file(dir)])
+			_copy_dir_internal([path, dest_dir.path_join(dir)])
 
 
 func copy_dir(abs_path: String, dest_dir: String) -> void:
@@ -91,7 +91,7 @@ func _rm_dir_internal(data: Array) -> void:
 	var error
 	
 	for item in list_dir(abs_path):
-		var path = abs_path.plus_file(item)
+		var path = abs_path.path_join(item)
 		if d.file_exists(path):
 			error = d.remove(path)
 			if error:
@@ -127,15 +127,15 @@ func _move_dir_internal(data: Array) -> void:
 		return
 	
 	for item in list_dir(abs_path):
-		var path = abs_path.plus_file(item)
-		var dest = abs_dest.plus_file(item)
+		var path = abs_path.path_join(item)
+		var dest = abs_dest.path_join(item)
 		if d.file_exists(path):
-			error = d.rename(path, abs_dest.plus_file(item))
+			error = d.rename(path, abs_dest.path_join(item))
 			if error:
 				Status.post(tr("msg_move_file_failed") % [item, error], Enums.MSG_ERROR)
 				Status.post(tr("msg_move_file_failed_details") % [path, dest])
 		elif d.dir_exists(path):
-			_move_dir_internal([path, abs_dest.plus_file(item)])
+			_move_dir_internal([path, abs_dest.path_join(item)])
 	
 	error = d.remove(abs_path)
 	if error:
@@ -157,7 +157,7 @@ func extract(path: String, dest_dir: String) -> void:
 	# Extracts a .zip or .tar.gz archive using the system utilities on Linux
 	# and bundled unzip.exe from InfoZip on Windows.
 	
-	var unzip_exe = Paths.utils_dir.plus_file("unzip.exe")
+	var unzip_exe = Paths.utils_dir.path_join("unzip.exe")
 	
 	var command_linux_zip = {
 		"name": "unzip",

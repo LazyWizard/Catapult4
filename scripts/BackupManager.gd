@@ -17,13 +17,12 @@ func backup_current(backup_name: String) -> void:
 	Status.post(tr("msg_backing_up_saves") % backup_name)
 	emit_signal("backup_creation_started")
 
-	var dest_dir = Paths.save_backups.plus_file(backup_name)
-	var d = Directory.new()
+	var dest_dir = Paths.save_backups.path_join(backup_name)
 	
-	if not d.dir_exists(dest_dir):
-		d.make_dir(dest_dir)
+	if not DirAccess.dir_exists_absolute(dest_dir):
+		DirAccess.make_dir_absolute(dest_dir)
 		for world in FS.list_dir(Paths.savegames):
-			FS.copy_dir(Paths.savegames.plus_file(world), dest_dir)
+			FS.copy_dir(Paths.savegames.path_join(world), dest_dir)
 			await FS.copy_dir_done
 		
 		Status.post(tr("msg_backup_created"))
@@ -36,7 +35,7 @@ func backup_current(backup_name: String) -> void:
 func get_save_summary(path: String) -> Dictionary:
 	# Get information about a game save directory (any directory containing one or more game worlds)
 	
-	if not Directory.new().dir_exists(path):
+	if not DirAccess.dir_exists_absolute(path):
 		return {}
 	
 	var summary = {
@@ -63,11 +62,11 @@ func refresh_available():
 
 	available = []
 	
-	if not Directory.new().dir_exists(Paths.save_backups):
+	if not DirAccess.dir_exists_absolute(Paths.save_backups):
 		return
 	
 	for backup in FS.list_dir(Paths.save_backups):
-		var path = Paths.save_backups.plus_file(backup)
+		var path = Paths.save_backups.path_join(backup)
 		available.append(get_save_summary(path))
 
 
@@ -82,14 +81,14 @@ func restore(backup_index: int) -> void:
 	
 	emit_signal("backup_restoration_started")
 
-	if Directory.new().dir_exists(source_dir):
-		if Directory.new().dir_exists(dest_dir):
+	if DirAccess.dir_exists_absolute(source_dir):
+		if DirAccess.dir_exists_absolute(dest_dir):
 			FS.rm_dir(dest_dir)
 			await FS.rm_dir_done
 		
-		Directory.new().make_dir(dest_dir)
+		DirAccess.make_dir_absolute(dest_dir)
 		for world in FS.list_dir(source_dir):
-			FS.copy_dir(source_dir.plus_file(world), dest_dir)
+			FS.copy_dir(source_dir.path_join(world), dest_dir)
 			await FS.copy_dir_done
 		
 		Status.post(tr("msg_backup_restored"))
@@ -102,10 +101,10 @@ func restore(backup_index: int) -> void:
 func delete(backup_name: String) -> void:
 	# Delete a backup.
 	
-	var target_dir = Paths.save_backups.plus_file(backup_name)
+	var target_dir = Paths.save_backups.path_join(backup_name)
 	emit_signal("backup_deletion_started")
 
-	if Directory.new().dir_exists(target_dir):
+	if DirAccess.dir_exists_absolute(target_dir):
 		Status.post(tr("msg_deleting_backup") % backup_name)
 	
 		FS.rm_dir(target_dir)

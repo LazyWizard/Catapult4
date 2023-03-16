@@ -11,7 +11,7 @@ var exit_code = null
 
 func _wrapper(path_and_args: Array) -> void:
 	
-	exit_code = OS.execute(path_and_args[0], path_and_args[1], true, output, true)
+	exit_code = OS.execute(path_and_args[0], path_and_args[1], output, true)
 	emit_signal("process_exited")
 	_worker.call_deferred("wait_to_finish")
 

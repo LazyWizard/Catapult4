@@ -17,19 +17,19 @@ func install_release(release_info: Dictionary, game: String, update_in: String =
 	Downloader.download_file(release_info["url"], Paths.own_dir, release_info["filename"])
 	await Downloader.download_finished
 	
-	var archive: String = Paths.own_dir.plus_file(release_info["filename"])
-	if Directory.new().file_exists(archive):
+	var archive: String = Paths.own_dir.path_join(release_info["filename"])
+	if DirAccess.dir_exists_absolute(archive):
 		
 		FS.extract(archive, Paths.tmp_dir)
 		await FS.extract_done
-		Directory.new().remove(archive)
+		DirAccess.remove_absolute(archive)
 		
 		if FS.last_extract_result == 0:
 		
 			var extracted_root
 			match OS.get_name():
 				"X11":
-					extracted_root = Paths.tmp_dir.plus_file(FS.list_dir(Paths.tmp_dir)[0])
+					extracted_root = Paths.tmp_dir.path_join(FS.list_dir(Paths.tmp_dir)[0])
 				"Windows":
 					extracted_root = Paths.tmp_dir
 			

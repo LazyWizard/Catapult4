@@ -42,12 +42,12 @@ func _get_installs_summary() -> Dictionary:
 	
 	for game in ["dda", "bn"]:
 		var installs = {}
-		var base_dir = Paths.own_dir.plus_file(game)
+		var base_dir = Paths.own_dir.path_join(game)
 		for subdir in FS.list_dir(base_dir):
-			var info_file = base_dir.plus_file(subdir).plus_file(Helpers.INFO_FILENAME)
+			var info_file = base_dir.path_join(subdir).path_join(Helpers.INFO_FILENAME)
 			if d.file_exists(info_file):
 				var info = Helpers.load_json_file(info_file)
-				installs[info["name"]] = base_dir.plus_file(subdir)
+				installs[info["name"]] = base_dir.path_join(subdir)
 		if not installs.is_empty():
 			result[game] = installs
 	
@@ -76,10 +76,10 @@ func _get_game_dir() -> String:
 func _find_active_game_dir() -> String:
 	
 	var d = Directory.new()
-	var base_dir = _get_own_dir().plus_file(Settings.read("game"))
+	var base_dir = _get_own_dir().path_join(Settings.read("game"))
 	for subdir in FS.list_dir(base_dir):
-		var curr_dir = base_dir.plus_file(subdir)
-		var info_file = curr_dir.plus_file("catapult_install_info.json")
+		var curr_dir = base_dir.path_join(subdir)
+		var info_file = curr_dir.path_join("catapult_install_info.json")
 		if d.file_exists(info_file):
 			var info = Helpers.load_json_file(info_file)
 			if ("name" in info) and (info["name"] == Settings.read("active_install_" + Settings.read("game"))):
@@ -93,94 +93,94 @@ func _get_next_install_dir() -> String:
 	# Finds a suitable directory name for a new game installation in the
 	# multi-install system. The names follow the pattern "game0, game1, ..."
 	
-	var base_dir := _get_own_dir().plus_file(Settings.read("game"))
+	var base_dir := _get_own_dir().path_join(Settings.read("game"))
 	var dir_number := 0
 	var d := Directory.new()
-	while d.dir_exists(base_dir.plus_file("game" + str(dir_number))):
+	while d.dir_exists(base_dir.path_join("game" + str(dir_number))):
 		dir_number += 1
-	return base_dir.plus_file("game" + str(dir_number))
+	return base_dir.path_join("game" + str(dir_number))
 
 
 func _get_userdata_dir() -> String:
 	
-	return _get_own_dir().plus_file(Settings.read("game")).plus_file("userdata")
+	return _get_own_dir().path_join(Settings.read("game")).path_join("userdata")
 
 
 func _get_config_dir() -> String:
 	
-	return _get_userdata_dir().plus_file("config")
+	return _get_userdata_dir().path_join("config")
 
 
 func _get_savegame_dir() -> String:
 	
-	return _get_userdata_dir().plus_file("save")
+	return _get_userdata_dir().path_join("save")
 
 
 func _get_mods_dir_default() -> String:
 	
-	return _get_game_dir().plus_file("data").plus_file("mods")
+	return _get_game_dir().path_join("data").path_join("mods")
 
 
 func _get_mods_dir_user() -> String:
 	
-	return _get_userdata_dir().plus_file("mods")
+	return _get_userdata_dir().path_join("mods")
 
 
 func _get_sound_dir_default() -> String:
 	
-	return _get_game_dir().plus_file("data").plus_file("sound")
+	return _get_game_dir().path_join("data").path_join("sound")
 
 
 func _get_sound_dir_user() -> String:
 	
-	return _get_userdata_dir().plus_file("sound")
+	return _get_userdata_dir().path_join("sound")
 
 
 func _get_gfx_dir_default() -> String:
 	
-	return _get_game_dir().plus_file("gfx")
+	return _get_game_dir().path_join("gfx")
 
 
 func _get_gfx_dir_user() -> String:
 	
-	return _get_userdata_dir().plus_file("gfx")
+	return _get_userdata_dir().path_join("gfx")
 
 
 func _get_font_dir_user() -> String:
 	
-	return _get_userdata_dir().plus_file("font")
+	return _get_userdata_dir().path_join("font")
 
 
 func _get_templates_dir() -> String:
 	
-	return _get_userdata_dir().plus_file("templates")
+	return _get_userdata_dir().path_join("templates")
 
 
 func _get_memorial_dir() -> String:
 	
-	return _get_userdata_dir().plus_file("memorial")
+	return _get_userdata_dir().path_join("memorial")
 
 
 func _get_graveyard_dir() -> String:
 	
-	return _get_userdata_dir().plus_file("graveyard")
+	return _get_userdata_dir().path_join("graveyard")
 
 
 func _get_modrepo_dir() -> String:
 	
-	return _get_own_dir().plus_file(Settings.read("game")).plus_file("mod_repo")
+	return _get_own_dir().path_join(Settings.read("game")).path_join("mod_repo")
 
 
 func _get_tmp_dir() -> String:
 	
-	return _get_own_dir().plus_file(Settings.read("game")).plus_file("tmp")
+	return _get_own_dir().path_join(Settings.read("game")).path_join("tmp")
 
 
 func _get_utils_dir() -> String:
 	
-	return _get_own_dir().plus_file("utils")
+	return _get_own_dir().path_join("utils")
 
 
 func _get_save_backups_dir() -> String:
 	
-	return _get_own_dir().plus_file(Settings.read("game")).plus_file("save_backups")
+	return _get_own_dir().path_join(Settings.read("game")).path_join("save_backups")

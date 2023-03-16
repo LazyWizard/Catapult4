@@ -109,7 +109,7 @@ func load_ui_theme(theme_file: String) -> void:
 	# the new theme.
 	
 	self.theme.apply_scale(1.0)
-	var new_theme := load("res://themes".plus_file(theme_file)) as ScalableTheme
+	var new_theme := load("res://themes".path_join(theme_file)) as ScalableTheme
 	
 	if new_theme:
 		new_theme.apply_scale(Geom.scale)
@@ -121,13 +121,12 @@ func load_ui_theme(theme_file: String) -> void:
 
 func _unpack_utils() -> void:
 	
-	var d = Directory.new()
-	var unzip_exe = Paths.utils_dir.plus_file("unzip.exe")
-	if (OS.get_name() == "Windows") and (not d.file_exists(unzip_exe)):
-		if not d.dir_exists(Paths.utils_dir):
-			d.make_dir(Paths.utils_dir)
+	var unzip_exe = Paths.utils_dir.path_join("unzip.exe")
+	if (OS.get_name() == "Windows") and (not FileAccess.file_exists(unzip_exe)):
+		if not DirAccess.dir_exists_absolute(Paths.utils_dir):
+			DirAccess.make_dir_absolute(Paths.utils_dir)
 		Status.post(tr("msg_unpacking_unzip"))
-		d.copy("res://utils/unzip.exe", unzip_exe)
+		DirAccess.copy_absolute("res://utils/unzip.exe", unzip_exe)
 
 
 func _smart_disable_controls(group_name: String) -> void:
@@ -312,14 +311,14 @@ func _get_release_key() -> String:
 func _on_GameDir_pressed() -> void:
 	
 	var gamedir = Paths.game_dir
-	if Directory.new().dir_exists(gamedir):
+	if DirAccess.dir_exists_absolute(gamedir):
 		OS.shell_open(gamedir)
 
 
 func _on_UserDir_pressed() -> void:
 	
 	var userdir = Paths.userdata
-	if Directory.new().dir_exists(userdir):
+	if DirAccess.dir_exists_absolute(userdir):
 		OS.shell_open(userdir)
 
 
@@ -386,7 +385,7 @@ func _on_BtnPlay_pressed() -> void:
 
 func _on_BtnResume_pressed() -> void:
 	
-	var lastworld: String = Paths.config.plus_file("lastworld.json")
+	var lastworld: String = Paths.config.path_join("lastworld.json")
 	var info = Helpers.load_json_file(lastworld)
 	if info:
 		_start_game(info["world_name"])
@@ -399,13 +398,15 @@ func _start_game(world := "") -> void:
 			var params := ["--userdir", Paths.userdata + "/"]
 			if world != "":
 				params.append_array(["--world", world])
-			OS.execute(Paths.game_dir.plus_file("cataclysm-launcher"), params, false)
+			# TODO: Spawn in own thread so application thread isn't blocked
+			OS.execute(Paths.game_dir.path_join("cataclysm-launcher"), params)
 		"Windows":
 			var world_str := ""
 			if world != "":
 				world_str = "--world \"%s\"" % world
 			var command = "cd /d %s && start cataclysm-tiles.exe --userdir \"%s/\" %s" % [Paths.game_dir, Paths.userdata, world_str]
-			OS.execute("cmd", ["/C", command], false)
+			# TODO: Spawn in own thread so application thread isn't blocked
+			OS.execute("cmd", ["/C", command])
 		_:
 			return
 	
@@ -424,7 +425,7 @@ func _on_InstallsList_item_activated(index: int) -> void:
 	
 	var name = _lst_installs.get_item_text(index)
 	var path = _installs[Settings.read("game")][name]
-	if Directory.new().dir_exists(path):
+	if DirAccess.dir_exists_absolute(path):
 		OS.shell_open(path)
 
 
@@ -465,7 +466,7 @@ func _refresh_currently_installed() -> void:
 	if game in _installs:
 		_lbl_build.text = active_name
 		_btn_play.disabled = false
-		_btn_resume.disabled = not (Directory.new().file_exists(Paths.config.plus_file("lastworld.json")))
+		_btn_resume.disabled = not (FileAccess.file_exists(Paths.config.path_join("lastworld.json")))
 		_btn_game_dir.visible = true
 		_btn_user_dir.visible = true
 		if (_lst_builds.selected != -1) and (_lst_builds.selected < len(releases)):

@@ -40,53 +40,51 @@ func set_game_option(name: String, value: String):
 
 func load_available_fonts() -> void:
 	
-	var f := File.new()
-	var error := f.open("res://fonts/ingame/font_info.json", File.READ)
+	var f := FileAccess.open("res://fonts/ingame/font_info.json", FileAccess.READ)
 	
-	if error:
+	if f == null:
 		Status.post(tr("msg_failed_to_open_font_info"), Enums.MSG_ERROR)
 		return
 	
 	var test_json_conv = JSON.new()
-	test_json_conv.parse(f.get_as_text())
-	var json_result := test_json_conv.get_data()
+	var json_result := test_json_conv.parse(f.get_as_text())
+	#var json_result := test_json_conv.get_data()
 	
-	if json_result.error:
+	if json_result:
 		Status.post(tr("msg_could_not_parse_font_info"), Enums.MSG_ERROR)
 		Status.post(tr("msg_font_info_error_details")
-				% [json_result.error, json_result.error_line, json_result.error_string], Enums.MSG_DEBUG)
+				% [json_result, test_json_conv.error_line, test_json_conv.error_string], Enums.MSG_DEBUG)
 		return
 		
-	available_fonts = json_result.result
+	available_fonts = test_json_conv.data
 
 
 func font_config_file_exists() -> bool:
 	
-	var config_file: String = Paths.config.plus_file("fonts.json")
+	var config_file: String = Paths.config.path_join("fonts.json")
 			
-	return Directory.new().file_exists(config_file)
+	return FileAccess.file_exists(config_file)
 
 
 func load_font_config() -> void:
 	
 	var result: Dictionary = {}
-	var config_file: String = Paths.config.plus_file("fonts.json")
+	var config_file: String = Paths.config.path_join("fonts.json")
 	
-	if Directory.new().file_exists(config_file):
-		var f := File.new()
-		var err = f.open(config_file, File.READ)
-		if err == 0:
+	if FileAccess.file_exists(config_file):
+		var f := FileAccess.open(config_file, FileAccess.READ)
+		if f != null:
 			var test_json_conv = JSON.new()
-			test_json_conv.parse(f.get_as_text())
-			var parse_result := test_json_conv.get_data()
-			if parse_result.error == 0:
-				result = parse_result.result
+			var parse_result := test_json_conv.parse(f.get_as_text())
+			#var parse_result := test_json_conv.get_data()
+			if parse_result == OK:
+				result = test_json_conv.data
 			else:
 				Status.post(tr("msg_could_not_parse_font_config") % config_file, Enums.MSG_ERROR)
 				Status.post(tr("msg_font_config_error_details")
-						% [parse_result.error, parse_result.error_line, parse_result.error_string], Enums.MSG_DEBUG)
+						% [parse_result, test_json_conv.error_line, test_json_conv.error_string], Enums.MSG_DEBUG)
 		else:
-			Status.post(tr("msg_failed_to_open_font_config") % [config_file, err], Enums.MSG_ERROR)
+			Status.post(tr("msg_failed_to_open_font_config") % [config_file, FileAccess.get_open_error()], Enums.MSG_ERROR)
 	else:
 		Status.post(tr("msg_font_config_not_found") % config_file, Enums.MSG_ERROR)
 	
@@ -95,41 +93,39 @@ func load_font_config() -> void:
 
 func options_file_exists() -> bool:
 	
-	var options_file: String = Paths.config.plus_file("options.json")
+	var options_file: String = Paths.config.path_join("options.json")
 		
-	return Directory.new().file_exists(options_file)
+	return FileAccess.file_exists(options_file)
 
 
 func load_game_options() -> void:
 	
-	var options_file: String = Paths.config.plus_file("options.json")
+	var options_file: String = Paths.config.path_join("options.json")
 
-	if Directory.new().file_exists(options_file):
-		var f := File.new()
-		var err = f.open(options_file, File.READ)
-		if err == 0:
+	if FileAccess.file_exists(options_file):
+		var f := FileAccess.open(options_file, FileAccess.READ)
+		if f != null:
 			var test_json_conv = JSON.new()
-			test_json_conv.parse(f.get_as_text())
-			var parse_result := test_json_conv.get_data()
-			if parse_result.error == 0:
-				_game_options = parse_result.result
+			var parse_result := test_json_conv.parse(f.get_as_text())
+			#var parse_result := test_json_conv.get_data()
+			if parse_result == OK:
+				_game_options = test_json_conv.data
 			else:
 				Status.post(tr("msg_could_not_parse_game_options") % options_file, Enums.MSG_ERROR)
 				Status.post(tr("msg_game_options_error_details")
-						% [parse_result.error, parse_result.error_line, parse_result.error_string], Enums.MSG_DEBUG)
+						% [parse_result, test_json_conv.error_line, test_json_conv.error_string], Enums.MSG_DEBUG)
 		else:
-			Status.post(tr("msg_could_not_open_game_options") % [options_file, err], Enums.MSG_ERROR)
+			Status.post(tr("msg_could_not_open_game_options") % [options_file, FileAccess.get_open_error()], Enums.MSG_ERROR)
 	else:
 		Status.post(tr("msg_game_options_not_found") % options_file, Enums.MSG_ERROR)
 
 
 func _write_font_config() -> void:
 	
-	var config_file: String = Paths.config.plus_file("fonts.json")
+	var config_file: String = Paths.config.path_join("fonts.json")
 	
-	var f = File.new()
-	var err = f.open(config_file, File.WRITE)
-	if err == 0:
+	var f := FileAccess.open(config_file, FileAccess.WRITE)
+	if f != null:
 		var json = JSON.stringify(font_config, "    ")
 		f.store_string(json)
 		f.close()
@@ -139,11 +135,10 @@ func _write_font_config() -> void:
 
 func write_game_options() -> void:
 	
-	var options_file: String = Paths.config.plus_file("options.json")
+	var options_file: String = Paths.config.path_join("options.json")
 	
-	var f = File.new()
-	var err = f.open(options_file, File.WRITE)
-	if err == 0:
+	var f := FileAccess.open(options_file, FileAccess.WRITE)
+	if f != null:
 		var json = JSON.stringify(_game_options, "    ")
 		f.store_string(json)
 		f.close()
@@ -154,11 +149,10 @@ func write_game_options() -> void:
 
 func _install_font(font_index: int) -> bool:
 	
-	var d := Directory.new()
 	var font_file = available_fonts[font_index]["file"]
-	var source := "res://fonts/ingame".plus_file(font_file)
-	var dest: String = Paths.font_user.plus_file(font_file)
-	var err = d.copy(source, dest)
+	var source := "res://fonts/ingame".path_join(font_file)
+	var dest: String = Paths.font_user.path_join(font_file)
+	var err = DirAccess.copy_absolute(source, dest)
 	
 	if err:
 		Status.post(tr("msg_could_not_install_font") % [font_file, err], Enums.MSG_ERROR)

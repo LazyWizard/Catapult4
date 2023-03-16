@@ -227,8 +227,9 @@ func _on_request_completed_bn(result: int, response_code: int,
 func _parse_builds(data: PackedByteArray, write_to: Array, filter: Dictionary) -> void:
 	
 	var test_json_conv = JSON.new()
-	test_json_conv.parse(data.get_string_from_utf8()).result
-	var json = test_json_conv.get_data()
+	#test_json_conv.parse(data.get_string_from_utf8()).result
+	var json = test_json_conv.parse(data.get_string_from_utf8())
+	json = json.data
 	
 	# Check if API rate limit is exceeded
 	if "message" in json:

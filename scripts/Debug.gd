@@ -40,9 +40,8 @@ func _on_Button2_pressed() -> void:
 
 func _on_Button3_pressed():
 	
-	var d = Directory.new()
-	var dir = Paths.own_dir.plus_file("testdir")
-	d.make_dir(dir)
+	var dir = Paths.own_dir.path_join("testdir")
+	DirAccess.make_dir_absolute(dir)
 	
 	var command_linux = {
 		"name": "sh",

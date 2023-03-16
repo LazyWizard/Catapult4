@@ -97,9 +97,6 @@ const _SCALABLE_CONSTANTS := {
 	"TextEdit": [
 		"line_spacing",
 	],
-	"Button": [
-		"h_separation",
-	],
 	"TooltipLabel": [
 		"shadow_offset_x",
 		"shadow_offset_y",

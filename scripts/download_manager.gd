@@ -29,7 +29,7 @@ func download_file(url: String, target_dir: String, target_filename: String) -> 
 	Status.post(tr("msg_downloading_file") % target_filename)
 	emit_signal("download_started")
 	_current_filename = target_filename
-	_current_file_path = target_dir.plus_file(target_filename)
+	_current_file_path = target_dir.path_join(target_filename)
 	_http.download_file = target_dir + "/" + target_filename
 	_http.request(url)
 	_download_ongoing = true
@@ -87,7 +87,7 @@ func _on_HTTPRequest_request_completed(_result: int, _response_code: int,
 	_download_ongoing = false
 	Status.post(tr("msg_http_request_info") % [_result, _response_code, _headers], Enums.MSG_DEBUG)
 	
-	if Directory.new().file_exists(_current_file_path):
+	if FileAccess.file_exists(_current_file_path):
 		Status.post(tr("msg_download_finished") % _current_filename)
 	else:
 		Status.post(tr("msg_download_failed") % _current_filename, Enums.MSG_ERROR)

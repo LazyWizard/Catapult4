@@ -154,7 +154,7 @@ func _on_Tabs_tab_changed(tab: int) -> void:
 func _on_FontsList_item_selected(index: int) -> void:
 	
 	var font_info = _fonts.available_fonts[index]
-	var font_path := "res://fonts/ingame".plus_file(font_info["file"])
+	var font_path := "res://fonts/ingame".path_join(font_info["file"])
 	var font_res = FontFile.new()
 	
 	font_res.font_data = load(font_path)
