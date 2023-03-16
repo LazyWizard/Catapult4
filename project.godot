@@ -1,48 +1,23 @@
-; Project was converted by built-in tool to Godot 4.0
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
 config_version=5
-_global_script_classes=[{
-"base": "Reference",
-"class": "Enums",
-"language": "GDScript",
-"path": "res://scripts/Enums.gd"
-}, {
-"base": "Object",
-"class": "OSExecWrapper",
-"language": "GDScript",
-"path": "res://scripts/OSExecWrapper.gd"
-}, {
-"base": "ImageTexture",
-"class": "ScalableImageTexture",
-"language": "GDScript",
-"path": "res://scripts/scalable_texture.gd"
-}, {
-"base": "Theme",
-"class": "ScalableTheme",
-"language": "GDScript",
-"path": "res://scripts/scalable_theme.gd"
-}, {
-"base": "Object",
-"class": "ThreadedFuncExecutor",
-"language": "GDScript",
-"path": "res://scripts/ThreadedFuncExecutor.gd"
-}]
-_global_script_class_icons={
-"Enums": "",
-"OSExecWrapper": "",
-"ScalableImageTexture": "",
-"ScalableTheme": "",
-"ThreadedFuncExecutor": ""
-}
 
 [application]
 
 config/name="Catapult"
 config/description="A cross-platform launcher for Cataclysm: DDA and BN"
 run/main_scene="res://scenes/Catapult.tscn"
+config/features=PackedStringArray("4.0")
 run/low_processor_mode=true
+boot_splash/bg_color=Color(0, 0, 0, 0)
 boot_splash/image="res://icons/transparent.png"
 boot_splash/use_filter=false
-boot_splash/bg_color=Color(0, 0, 0, 0)
 config/icon="res://icons/appicon.svg"
 config/windows_native_icon="res://icons/appicon.ico"
 
@@ -68,9 +43,12 @@ window/size/viewport_height=700
 window/size/borderless=true
 window/size/window_width_override=1
 window/size/window_height_override=1
-window/dpi/allow_hidpi=true
 window/per_pixel_transparency/allowed=true
 window/per_pixel_transparency/enabled=true
+
+[dotnet]
+
+project/assembly_name="Catapult"
 
 [gdnative]
 
@@ -131,9 +109,8 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 quality/driver/driver_name="GLES2"
 quality/intended_usage/framebuffer_allocation=0
 quality/intended_usage/framebuffer_allocation.mobile=1
 vram_compression/import_etc=true
-textures/vram_compression/import_etc2_astc=false
-environment/defaults/default_clear_color=Color(0, 0, 0, 1)
